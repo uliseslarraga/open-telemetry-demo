@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - feat/*
 
 env:
   REGISTRY: ghcr.io
@@ -15,10 +16,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: ./price-service
+          - dockerfile: ./price-service/Dockerfile
             image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/price-service
-          - dockerfile: ./product-service
-            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/
+          - dockerfile: ./product-service/Dockerfile
+            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/product-service
     permissions:
       contents: read
       packages: write
