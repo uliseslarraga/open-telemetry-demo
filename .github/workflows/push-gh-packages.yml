@@ -17,9 +17,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./price-service/Dockerfile
-            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/price-service
+            image: ghcr.io/uliseslarraga/open-telemetry-demo/price-service
           - dockerfile: ./product-service/Dockerfile
-            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/product-service
+            image: ghcr.io/uliseslarraga/open-telemetry-demo/product-service
     permissions:
       contents: read
       packages: write
