@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Price;
-import com.example.demo.repository.PriceRepository;
+import com.example.demo.service.PriceService;
 
 @RestController
 @RequestMapping("/price")
@@ -20,7 +20,7 @@ public class PriceController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PriceController.class);
 
     @Autowired
-    private PriceRepository priceRepository;
+    private PriceService priceService;
 
     @GetMapping(path = "/test")
     public String getPrice() {
@@ -32,6 +32,6 @@ public class PriceController {
     @GetMapping(path = "/{id}")
     public Price getPrice(@PathVariable("id") long productId) {
         LOGGER.info("Getting Price details for Product Id {}", productId);
-        return priceRepository.getPrice(productId);
+        return priceService.findById(productId);
     }
 }
