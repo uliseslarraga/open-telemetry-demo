@@ -2,16 +2,21 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "products")
 public class Product {
 
+	@Id
     @JsonProperty("id")
     private long id;
 
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("price")
-    private Price price;
 
     public void setId(long id) {
         this.id = id;
@@ -19,9 +24,5 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setPrice(Price price) {
-        this.price = price;
     }
 }

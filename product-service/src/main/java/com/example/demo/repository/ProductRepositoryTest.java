@@ -13,9 +13,9 @@ import com.example.demo.model.Product;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class ProductRepository {
+public class ProductRepositoryTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductRepositoryTest.class);
 
     private final Map<Long, Product> productMap = new HashMap<>();
 

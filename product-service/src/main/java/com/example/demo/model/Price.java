@@ -2,24 +2,15 @@ package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 public class Price {
 
-    @JsonProperty("productId")
-    private long productId;
 
     @JsonProperty("price_amount")
     private double priceAmount;
 
     @JsonProperty("discount")
     private double discount;
-
-    public long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(long productId) {
-        this.productId = productId;
-    }
 
     public double getPriceAmount() {
         return priceAmount;
