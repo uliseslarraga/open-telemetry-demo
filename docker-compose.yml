@@ -30,3 +30,22 @@ services:
     ports:
       - "9090:9090"
       - "8889:8889"
+  db:
+    image: postgres:17
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: java_app
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5433:5432
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+      - ./database/db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
