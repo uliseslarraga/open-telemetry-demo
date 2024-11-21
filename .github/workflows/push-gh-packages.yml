@@ -15,10 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: ./price-service
-            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/price-service
-          - dockerfile: ./product-service
-            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}/
+          - dockerfile: ./price-service/Dockerfile
+            image: ghcr.io/uliseslarraga/open-telemetry-demo/price-service
+          - dockerfile: ./product-service/Dockerfile
+            image: ghcr.io/uliseslarraga/open-telemetry-demo/product-service
     permissions:
       contents: read
       packages: write
