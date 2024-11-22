@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: price-service
+  cloud:
+    kubernetes:
+      config:
+        name: price-config
+        namespace: default
+        sources:
+          - name: price-config
