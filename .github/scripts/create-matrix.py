@@ -9,8 +9,8 @@ def folder_contains_dockerfile(folder_path):
         print(f"Folder not found: {folder_path}")
         return False
     
-def get_directories(commit_hash):
-    full_command=f"git diff-tree --no-commit-id --diff-filter=M --name-only -r {commit_hash} | while read f; do dirname \"$f\"; done | sort -u"
+def get_directories():
+    full_command=f"git diff-tree --no-commit-id --diff-filter=M --name-only -r HEAD^0 | while read f; do dirname \"$f\"; done | sort -u"
     try:
         return subprocess.run(full_command, shell=True, capture_output=True, text=True)
     except subprocess.CalledProcessError:
@@ -18,8 +18,7 @@ def get_directories(commit_hash):
         return []
 
 def run():
-    commit_hash=os.environ['GITHUB_COMMIT']
-    modified_dirs = get_directories(commit_hash).stdout.strip().splitlines()
+    modified_dirs = get_directories().stdout.strip().splitlines()
     for dir in modified_dirs:
         if not folder_contains_dockerfile(dir):
             modified_dirs.remove(dir)
