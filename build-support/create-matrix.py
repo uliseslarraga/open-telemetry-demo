@@ -21,7 +21,8 @@ def run():
     for dir in modified_dirs:
         if not folder_contains_dockerfile(dir):
             modified_dirs.remove(dir)
-
+    json_data = json.dumps(modified_dirs)
+    print(json_data)
     with open("output.json", "w") as f:
         json.dump(modified_dirs, f, indent=4)
 
