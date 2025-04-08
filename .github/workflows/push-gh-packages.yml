@@ -37,7 +37,7 @@ jobs:
         commit_hash=os.environ['GITHUB_COMMIT']
         full_command=f"git diff-tree --no-commit-id --diff-filter=M --name-only -r {commit_hash} | while read f; do dirname \"$f\"; done | sort -u"
         try:
-            modified_dirs = subprocess.run(full_command, shell=True, capture_output=True, text=True)
+            modified_dirs = subprocess.run(full_command, shell=True, capture_output=True, text=True).stdout.strip().splitlines()
         except subprocess.CalledProcessError:
             print("Failed to execute command")
             modified_dirs = []
