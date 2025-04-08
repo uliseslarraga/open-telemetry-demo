@@ -19,14 +19,16 @@ def get_directories():
 
 def run():
     modified_dirs = get_directories().stdout.strip().splitlines()
+    directories=[]
     for dir in modified_dirs:
-        if not folder_contains_dockerfile(dir):
-            modified_dirs.remove(dir)
-    json_data = json.dumps(modified_dirs)
+        if folder_contains_dockerfile(dir):
+            directories.append(dir)
+
+    json_data = json.dumps(directories)
     print(json_data)
 
     with open("output.json", "w") as f:
-         json.dump(modified_dirs, f, indent=2)
+         json.dump(directories, f, indent=2)
          
 if __name__ == "__main__":
     run()
