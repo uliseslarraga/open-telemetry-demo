@@ -10,7 +10,7 @@ def folder_contains_dockerfile(folder_path):
         return False
     
 def get_directories():
-    full_command=f"git diff-tree --no-commit-id --diff-filter=M --name-only -r HEAD^0 | while read f; do dirname \"$f\"; done | sort -u"
+    full_command=f"git diff --name-only HEAD^1 HEAD | while read f; do dirname \"$f\"; done | sort -u"
     try:
         return subprocess.run(full_command, shell=True, capture_output=True, text=True)
     except subprocess.CalledProcessError:
