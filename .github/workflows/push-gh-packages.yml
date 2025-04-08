@@ -23,7 +23,7 @@ jobs:
       run: python build-support/create-matrix.py
     - name: Output JSON
       run: |
-        echo "json_output=$(cat output.json)" >> $GITHUB_OUTPUT
+        echo "matrix=$(cat output.json)" >> $GITHUB_OUTPUT
       id: output_step
 
   build-and-push-image:
