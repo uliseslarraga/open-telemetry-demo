@@ -24,14 +24,11 @@ jobs:
         python-version: '3.13.0'
     - name: Run Script
       run: python -u .github/scripts/create-matrix.py
-      id: get-matrix
     - name: Output JSON
+      id: get-matrix
       run: |
         ls -la
-        cat output.json
-        echo "artifacts=$(cat output.json)" >> $GITHUB_OUTPUT
-    - name: Debug
-      run: cat output.json && git version && echo "${GITHUB_COMMIT}"
+        echo "artifacts=$(jq -c . < output.json)" >> $GITHUB_OUTPUT
 
   build-and-push-image:
     needs: detect_changes
