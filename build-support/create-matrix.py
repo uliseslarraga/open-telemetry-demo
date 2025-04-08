@@ -14,6 +14,7 @@ def get_directories(commit_hash):
     try:
         return subprocess.run(full_command, shell=True, capture_output=True, text=True)
     except subprocess.CalledProcessError:
+        print("Failed to execute command")
         return []
 
 def run():
