@@ -21,13 +21,46 @@ jobs:
       with:
         python-version: '3.13.0'
     - name: Run Script
-      run: python build-support/create-matrix.py
-    - name: Output JSON
+      id: get-matrix
+      shell: python
       run: |
-        echo "artifacts=$(cat output.json)" >> $GITHUB_OUTPUT
-      id: output_step
-    - name: Debug
-      run: cat output.json && git version && echo "${GITHUB_COMMIT}"
+        import json
+        import subprocess
+        import os
+        def folder_contains_dockerfile(folder_path):
+            try:
+                return "Dockerfile" in os.listdir(folder_path)
+            except FileNotFoundError:
+                print(f"Folder not found: {folder_path}")
+                return False
+            
+        full_command=f"git diff-tree --no-commit-id --diff-filter=M --name-only -r {commit_hash} | while read f; do dirname \"$f\"; done | sort -u"
+        try:
+            modified_dirs = subprocess.run(full_command, shell=True, capture_output=True, text=True)
+        except subprocess.CalledProcessError:
+            print("Failed to execute command")
+            modified_dirs = []
+
+        commit_hash=os.environ['GITHUB_COMMIT']
+        #modified_dirs = get_directories(commit_hash).stdout.strip().splitlines()
+        for dir in modified_dirs:
+            if not folder_contains_dockerfile(dir):
+                modified_dirs.remove(dir)
+        json_data = json.dumps(modified_dirs)
+        print(json_data)
+
+        with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+            #json.dump(modified_dirs, f, indent=4)
+            print(f'artifacts={json_data}', file=fh)
+        gh_output=os.environ['GITHUB_OUTPUT']
+        print(gh_output)
+    #  run: python build-support/create-matrix.py
+    #- name: Output JSON
+    #  run: |
+    #    echo "artifacts=$(cat output.json)" >> $GITHUB_OUTPUT
+    #  id: output_step
+    #- name: Debug
+    #  run: cat output.json && git version && echo "${GITHUB_COMMIT}"
 
   build-and-push-image:
     needs: detect_changes
