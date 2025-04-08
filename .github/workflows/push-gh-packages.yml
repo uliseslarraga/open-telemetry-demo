@@ -1,7 +1,7 @@
 name: Build & publish docker images
 on:
   pull_request:
-    types: [opened]
+    types: [opened,synchronize]
 
 env:
   REGISTRY: ghcr.io
@@ -11,7 +11,7 @@ jobs:
   detect_changes:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.output_step.outputs.result }}
+      artifacts: ${{ steps.output_step.outputs.result }}
     steps: 
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -25,14 +25,15 @@ jobs:
       run: |
         echo "matrix=$(cat output.json)" >> $GITHUB_OUTPUT
       id: output_step
+    - name: Debug
+      run: cat output.json
 
   build-and-push-image:
     needs: detect_changes
     strategy:
       fail-fast: false
       matrix:
-        artifacts: ${{ fromJSON(needs.detect_changes.outputs.matrix) }}
-
+        artifact: ${{ fromJSON(needs.detect_changes.outputs.artifacts) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,13 +59,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ghcr.io/uliseslarraga/open-telemetry-demo/${{ matrix.node }}
+          images: ghcr.io/uliseslarraga/open-telemetry-demo/${{ matrix.artifact }}
 
       - name: Build and push Docker image Demo
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          file: ./${{ matrix.node }}/Dockerfile
+          file: ./${{ matrix.artifact }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
