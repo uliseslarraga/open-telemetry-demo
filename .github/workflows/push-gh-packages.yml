@@ -12,7 +12,7 @@ jobs:
   detect_changes:
     runs-on: ubuntu-latest
     outputs:
-      artifacts: ${{ steps.output_step.outputs.result }}
+      artifacts: ${{ steps.output_step.outputs.artifacts }}
     steps: 
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
       run: python build-support/create-matrix.py
     - name: Output JSON
       run: |
-        echo "matrix=$(cat output.json)" >> $GITHUB_OUTPUT
+        echo "artifacts=$(cat output.json)" >> $GITHUB_OUTPUT
       id: output_step
     - name: Debug
       run: cat output.json
