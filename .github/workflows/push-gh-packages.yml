@@ -27,7 +27,7 @@ jobs:
         echo "artifacts=$(cat output.json)" >> $GITHUB_OUTPUT
       id: output_step
     - name: Debug
-      run: cat output.json
+      run: cat output.json && git version && echo "${GITHUB_COMMIT}"
 
   build-and-push-image:
     needs: detect_changes
