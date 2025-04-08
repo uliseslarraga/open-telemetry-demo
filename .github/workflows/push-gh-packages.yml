@@ -9,24 +9,36 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
+  detect_changes:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.output_step.outputs.result }}
+    steps: 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    - name: Run Script
+      run: python build-support/create-matrix.py
+    - name: Output JSON
+      run: |
+        echo "json_output=$(cat output.json)" >> $GITHUB_OUTPUT
+      id: output_step
+
+  build-and-push-image:
+    needs: detect_changes
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - dockerfile: ./price-service/Dockerfile
-            image: ghcr.io/uliseslarraga/open-telemetry-demo/price-service
-          - dockerfile: ./product-service/Dockerfile
-            image: ghcr.io/uliseslarraga/open-telemetry-demo/product-service
+        artifacts: ${{ fromJSON(needs.detect_changes.outputs.matrix) }}
+
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -47,13 +59,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ matrix.image }}
+          images: ghcr.io/uliseslarraga/open-telemetry-demo/${{ matrix.node }}
 
       - name: Build and push Docker image Demo
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: ./${{ matrix.node }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
