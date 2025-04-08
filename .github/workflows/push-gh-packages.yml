@@ -18,7 +18,7 @@ jobs:
       uses: actions/checkout@v4
     - name: debug git
       id: mod-files
-      run: echo "artifacts=$(git diff-tree --no-commit-id --diff-filter=M --name-only -r ${{ github.sha }} | while read f; do dirname \"$f\"; done | sort -u)" >> "$GITHUB_OUTPUT"
+      run: echo "artifacts=$(git diff-tree --no-commit-id --diff-filter=M --name-only -r ${{ github.sha }} )" >> "$GITHUB_OUTPUT"
     #- name: Setup Python
     #  uses: actions/setup-python@v5
     #  with:
