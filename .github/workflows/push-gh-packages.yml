@@ -34,6 +34,7 @@ jobs:
                 print(f"Folder not found: {folder_path}")
                 return False
             
+        commit_hash=os.environ['GITHUB_COMMIT']
         full_command=f"git diff-tree --no-commit-id --diff-filter=M --name-only -r {commit_hash} | while read f; do dirname \"$f\"; done | sort -u"
         try:
             modified_dirs = subprocess.run(full_command, shell=True, capture_output=True, text=True)
@@ -41,7 +42,6 @@ jobs:
             print("Failed to execute command")
             modified_dirs = []
 
-        commit_hash=os.environ['GITHUB_COMMIT']
         #modified_dirs = get_directories(commit_hash).stdout.strip().splitlines()
         for dir in modified_dirs:
             if not folder_contains_dockerfile(dir):
