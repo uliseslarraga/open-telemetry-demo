@@ -26,10 +26,8 @@ def run():
     json_data = json.dumps(modified_dirs)
     print(json_data)
 
-    with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
-        #json.dump(modified_dirs, f, indent=4)
-        fh.write(f'artifacts={json_data}')
-    gh_output=os.environ['GITHUB_OUTPUT']
-    print(gh_output)
+    with open("output.json", "w") as f:
+         json.dump(modified_dirs, f, indent=4)
+         
 if __name__ == "__main__":
     run()
