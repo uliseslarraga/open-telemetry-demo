@@ -26,7 +26,7 @@ def run():
     print(json_data)
 
     with open("output.json", "w") as f:
-         json.dump(modified_dirs, f, indent=4)
+         json.dump(modified_dirs, f, indent=2)
          
 if __name__ == "__main__":
     run()
