@@ -1,32 +1,52 @@
 name: Build & publish docker images
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened,synchronize]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  GITHUB_COMMIT: ${{ github.sha }}
 
 jobs:
-  build-and-push-image:
+  detect_changes:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - dockerfile: ./price-service/Dockerfile
-            image: ghcr.io/uliseslarraga/open-telemetry-demo/price-service
-          - dockerfile: ./product-service/Dockerfile
-            image: ghcr.io/uliseslarraga/open-telemetry-demo/product-service
+    outputs:
+      artifacts: ${{ steps.get-matrix.outputs.artifacts }}
+      dir_lenght: ${{ steps.get-lenght.outputs.dir_lenght }}
+    steps: 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13.0'
+    - name: Run Script
+      run: python -u .github/scripts/create-matrix.py
+    - name: Output Artifacts
+      id: get-matrix
+      run: |
+        echo "artifacts=$(jq -c .directories < output.json)" >> $GITHUB_OUTPUT
+    - name: Output Artifacts Lenght
+      id: get-lenght
+      run: |
+        echo "dir_lenght=$(jq -c .dir_lenght < output.json)" >> $GITHUB_OUTPUT
+
+  build-and-push-image:
+    if: needs.detect_changes.outputs.dir_lenght > 0
+    needs: detect_changes
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact: ${{ fromJSON(needs.detect_changes.outputs.artifacts) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -45,15 +65,19 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v5
         with:
-          images: ${{ matrix.image }}
-
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.artifact }}
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
       - name: Build and push Docker image Demo
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: ./${{ matrix.artifact }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
