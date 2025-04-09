@@ -11,7 +11,8 @@ jobs:
   detect_changes:
     runs-on: ubuntu-latest
     outputs:
-      artifacts: ${{ fromJSON(steps.get-matrix.outputs.artifacts) }}
+      artifacts: ${{ steps.get-matrix.outputs.artifacts }}
+      dir_lenght: ${{ steps.get-lenght.outputs.dir_lenght }}
     steps: 
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -23,14 +24,17 @@ jobs:
         python-version: '3.13.0'
     - name: Run Script
       run: python -u .github/scripts/create-matrix.py
-    - name: Output JSON
+    - name: Output Artifacts
       id: get-matrix
       run: |
-        ls -la
-        echo "artifacts=$(jq -c . < output.json)" >> $GITHUB_OUTPUT
+        echo "artifacts=$(jq -c .directories < output.json)" >> $GITHUB_OUTPUT
+    - name: Output Artifacts Lenght
+      id: get-lenght
+      run: |
+        echo "dir_lenght=$(jq -c .dir_lenght < output.json)" >> $GITHUB_OUTPUT
 
   build-and-push-image:
-    if: needs.detect_changes.outputs.artifacts.dir_lenght > 0
+    if: needs.detect_changes.outputs.dir_lenght > 0
     needs: detect_changes
     runs-on: ubuntu-latest
     permissions:
@@ -39,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        artifact: ${{ needs.detect_changes.outputs.artifacts.directories }}
+        artifact: ${{ fromJSON(needs.detect_changes.outputs.artifacts) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
