@@ -5,14 +5,13 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   GITHUB_COMMIT: ${{ github.sha }}
 
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
     outputs:
-      artifacts: ${{ steps.get-matrix.outputs.artifacts }}
+      artifacts: ${{ fromJSON(steps.get-matrix.outputs.artifacts) }}
     steps: 
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -31,15 +30,16 @@ jobs:
         echo "artifacts=$(jq -c . < output.json)" >> $GITHUB_OUTPUT
 
   build-and-push-image:
+    if: needs.detect_changes.outputs.artifacts.dir_lenght > 0
     needs: detect_changes
-    strategy:
-      fail-fast: false
-      matrix:
-        artifact: ${{ fromJSON(needs.detect_changes.outputs.artifacts) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact: ${{ needs.detect_changes.outputs.artifacts.directories }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,10 +61,14 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/uliseslarraga/open-telemetry-demo/${{ matrix.artifact }}
-
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.artifact }}
+          tags: |
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
       - name: Build and push Docker image Demo
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
